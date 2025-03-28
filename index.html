@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Học HTML - Level Up</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        textarea { width: 80%; height: 100px; margin-top: 10px; }
+        button { margin-top: 10px; padding: 10px; }
+        .hidden { display: none; }
+        #score {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chào mừng đến với Khóa học HTML</h1>
+    <h2 id="level-title">Nhiệm vụ Level 1: Viết tiêu đề</h2>
+    <p id="level-desc">Viết một thẻ tiêu đề &lt;h1&gt; với nội dung "Chào mừng đến với khóa học HTML"</p>
+    
+    <textarea id="codeInput"></textarea><br>
+    <button onclick="checkAnswer()">Nộp bài</button>
+    <p id="result"></p>
+    <p id="score"></p>
+
+    <script>
+        let levels = [
+            { desc: "Viết một thẻ tiêu đề <h1>Chào mừng đến với khóa học HTML</h1>", answer: "<h1>Chào mừng đến với khóa học HTML</h1>" },
+            { desc: "Thêm hình ảnh có đường dẫn 'image.jpg'", answer: "<img src='image.jpg'>" },
+            { desc: "Tạo danh sách<ul><li>Mục 1</li><li>Mục 2</li></ul>", answer: "<ul><li>Mục 1</li><li>Mục 2</li></ul>" },
+            { desc: "Tạo bảng với 2 hàng và 2 cột", answer: "<table><tr><td>1</td><td>2</td></tr><tr><td>3</td><td>4</td></tr></table>" },
+            { desc: "Thêm liên kết với nội dung 'Google' và đường dẫn 'https://google.com'", answer: "<a href='https://google.com'>Google</a>" }
+        ];
+        
+        let currentLevel = localStorage.getItem("level") || 0;
+        currentLevel = parseInt(currentLevel);
+        let score = localStorage.getItem("score") || 0;
+        score = parseInt(score);
+        let attempts = JSON.parse(localStorage.getItem("attempts")) || {}; // Lưu số lần thử cho từng câu
+
+        function loadLevel() {
+            document.getElementById("level-title").innerText = `Nhiệm vụ Level ${currentLevel + 1}`;
+            document.getElementById("level-desc").innerText = levels[currentLevel].desc;
+            document.getElementById("codeInput").value = ""; // Xóa đáp án cũ
+            document.getElementById("score").innerText = `Điểm: ${score} | Cúp: ${Math.floor(score / 10)}`;
+        }
+
+        function normalizeString(str) {
+            return str.replace(/\s+/g, '').toLowerCase(); // Bỏ dấu cách và chuyển về chữ thường
+        }
+
+        function checkAnswer() {
+            let userCode = normalizeString(document.getElementById("codeInput").value.trim());
+            let correctAnswer = normalizeString(levels[currentLevel].answer);
+
+            // Tăng số lần thử cho câu hiện tại
+            attempts[currentLevel] = (attempts[currentLevel] || 0) + 1;
+
+            if (userCode === correctAnswer) {
+                if (attempts[currentLevel] === 1) {
+                    score += 10; // Lần đầu đúng được 10 điểm
+                } else {
+                    score += 5; // Từ lần thứ 2 trở lên đúng được 5 điểm
+                }
+                localStorage.setItem("score", score);
+                document.getElementById("result").innerHTML = "🎉 Đúng rồi! Bạn đã mở khóa Level tiếp theo!";
+                currentLevel++;
+                localStorage.setItem("level", currentLevel);
+                localStorage.setItem("attempts", JSON.stringify(attempts)); // Lưu số lần thử
+                if (currentLevel < levels.length) {
+                    loadLevel();
+                } else {
+                    document.getElementById("result").innerHTML += " 🏆 Bạn đã hoàn thành khóa học!";
+                }
+            } else {
+                document.getElementById("result").innerHTML = "❌ Sai! Hãy thử lại!";
+            }
+            document.getElementById("score").innerText = `Điểm: ${score} | Cúp: ${Math.floor(score / 10)}`;
+        }
+
+        loadLevel();
+    </script>
+</body>
+</html>
